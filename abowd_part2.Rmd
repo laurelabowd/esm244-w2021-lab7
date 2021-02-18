@@ -1,0 +1,41 @@
+---
+title: "The Hobbit text analysis"
+author: "Laurel Abowd"
+date: "2/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(pdftools)
+library(ggwordcloud)
+```
+
+```{r, cache=TRUE}
+hobbit_text <- pdf_text("the-hobbit.pdf")
+
+hobbit_text_p34 <- hobbit_text[34]
+hobbit_text
+```
+
+```{r}
+hobbit_tidy <- data.frame(hobbit_text) %>% 
+  mutate(text_full = str_split(hobbit_text, pattern = "\\n")) %>% 
+  unnest(text_full) %>% 
+  mutate(text_full = str_trim(text_full))
+```
+
+```{r}
+hobbit_df <- hobbit_tidy %>%
+  slice(-(1:125)) %>% 
+  mutate(chapter = case_when(
+    str_detect(text_full, pattern = "Chapter") ~ text_full,
+    TRUE ~ NA_character_
+    
+  ))
+  
+```
+
